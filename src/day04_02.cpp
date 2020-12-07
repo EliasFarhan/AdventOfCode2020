@@ -2,6 +2,7 @@
 // Created by efarhan on 12/5/20.
 //
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <vector>
