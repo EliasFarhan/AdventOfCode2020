@@ -1,10 +1,12 @@
 //
 // Created by efarhan on 12/3/20.
 //
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <array>
+#include <string>
 
 struct Point
 {
@@ -58,7 +60,7 @@ int main(int arg, char** argv)
         toboggan.push_back(value);
     }
     const size_t height = toboggan.size();
-    const size_t slopeCount = 5;
+    constexpr size_t slopeCount = 5;
     std::array<Slope, slopeCount> slopeResults =
             {{
                     {0,{0,0},{1,1}},
@@ -67,7 +69,7 @@ int main(int arg, char** argv)
                     {0,{0,0},{7,1}},
                     {0,{0,0},{1,2}},
             }};
-    while(std::any_of(slopeResults.begin(), slopeResults.end(), [&height](const Slope& result){
+    while(std::ranges::any_of(slopeResults, [&height](const Slope& result){
         return result.currentPos.y < height;
     }))
     {
@@ -86,7 +88,7 @@ int main(int arg, char** argv)
 
     }
     size_t count = 1;
-    for(auto& result : slopeResults)
+    for(const auto& result : slopeResults)
     {
         count *= result.count;
     }
