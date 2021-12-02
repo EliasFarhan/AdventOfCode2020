@@ -2,6 +2,7 @@
 // Created by efarhan on 12/5/20.
 //
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -68,7 +69,7 @@ int main(int arg, char** argv)
         pass.passId = pass.row * 8u + pass.column;
         seatIds.push_back(pass.passId);
     }
-    std::sort(seatIds.begin(), seatIds.end());
+    std::ranges::sort(seatIds);
     for(size_t i = 0; i < seatIds.size()-1; i++)
     {
         if(seatIds[i+1] != seatIds[i]+1)

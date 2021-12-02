@@ -6,6 +6,7 @@
 #include <cassert>
 #include <vector>
 #include <iostream>
+#include <string>
 
 enum class InstructionType : std::uint8_t
 {
@@ -54,24 +55,25 @@ int main(int arg, char** argv)
         else
         {
             //Invalid instruction type
-            assert(false);
+            assert(false && "Invalid instruction type");
         }
 
         std::string number = line.substr(spaceIndex+1+(line[spaceIndex+1] == '+' ? 1 : 0));
-        newInstruction.argument = std::atoi(number.data());
+        newInstruction.argument = std::stoi(number);
 
         instructions.push_back(newInstruction);
     }
-
+    //instructions[61].type = InstructionType::NOP;
     size_t currentLine = 0;
     int accumulator = 0;
     std::vector<size_t> previousInstructions;
     while(currentLine < instructions.size())
     {
-        const auto it = std::find(previousInstructions.begin(), previousInstructions.end(), currentLine);
+        const auto it = std::ranges::find(previousInstructions, currentLine);
         if(it != previousInstructions.end())
         {
-            break;
+            std::cout << "Before executing instruction "<<currentLine<<" the accumulator value is: "<<accumulator<<'\n';
+            return EXIT_SUCCESS;
         }
         previousInstructions.push_back(currentLine);
         const auto& instruction = instructions[currentLine];
@@ -89,66 +91,6 @@ int main(int arg, char** argv)
                 break;
         }
         currentLine++;
-    }
-
-    size_t currentChangedIndex = 0;
-    size_t nextChangedIndex = 0;
-    while(currentChangedIndex <= previousInstructions.size())
-    {
-        currentLine = 0;
-        accumulator = 0;
-        auto tmpInstructions = instructions;
-        auto changedInstructionIt = std::find_if(previousInstructions.begin() + nextChangedIndex,
-                                                 previousInstructions.end(),
-                                                 [&instructions](const auto index)
-            {
-                return instructions[index].type == InstructionType::NOP ||
-                instructions[index].type == InstructionType::JMP;
-            });
-        //We are at the end of the previous instructions and no result...
-        assert(changedInstructionIt != previousInstructions.end());
-
-        currentChangedIndex = std::distance(previousInstructions.begin(), changedInstructionIt);
-        nextChangedIndex = currentChangedIndex + 1;
-        auto& changedInstruction = tmpInstructions[previousInstructions[currentChangedIndex]];
-        assert(changedInstruction.type == InstructionType::NOP ||
-            changedInstruction.type == InstructionType::JMP);
-
-        changedInstruction.type =
-                changedInstruction.type == InstructionType::NOP ?
-                InstructionType::JMP :
-                InstructionType::NOP;
-        std::vector<size_t> tmpPreviousInstructions;
-        while(currentLine < tmpInstructions.size())
-        {
-            const auto it = std::find(tmpPreviousInstructions.begin(), tmpPreviousInstructions.end(), currentLine);
-            if(it != tmpPreviousInstructions.end())
-            {
-                break;
-            }
-            tmpPreviousInstructions.push_back(currentLine);
-            const auto& instruction = tmpInstructions[currentLine];
-            switch(instruction.type)
-            {
-                case InstructionType::ACC:
-                    accumulator += instruction.argument;
-                    break;
-                case InstructionType::JMP:
-                    currentLine += instruction.argument;
-                    continue;
-                case InstructionType::NOP:
-                    break;
-                default:
-                    break;
-            }
-            currentLine++;
-        }
-        std::cout << "Current line: "<<currentLine<<" Accumulator: "<<accumulator<<'\n';
-        if(currentLine >= tmpInstructions.size())
-        {
-            std::cout << "The accumulator value is "<< accumulator <<'\n';
-            return EXIT_SUCCESS;
-        }
     }
     return EXIT_SUCCESS;
 }
